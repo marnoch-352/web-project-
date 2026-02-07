@@ -35,6 +35,33 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        // Validate required medical history fields
+        if (!symptoms) {
+            showMessage('กรุณากรอกอาการของผู้ป่วย', 'error');
+            return;
+        }
+
+        if (!procedureHistory) {
+            showMessage('กรุณากรอกหัตถการที่ได้รับมา', 'error');
+            return;
+        }
+
+        // Validate required physical measurements
+        if (!weight) {
+            showMessage('กรุณากรอกน้ำหนัก', 'error');
+            return;
+        }
+
+        if (!height) {
+            showMessage('กรุณากรอกส่วนสูง', 'error');
+            return;
+        }
+
+        if (!age) {
+            showMessage('กรุณากรอกอายุ', 'error');
+            return;
+        }
+
         // Show loading state
         submitBtn.disabled = true;
         submitBtn.textContent = 'Registering...';
