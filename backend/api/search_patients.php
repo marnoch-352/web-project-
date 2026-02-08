@@ -39,21 +39,23 @@ try {
         exit();
     }
     
-    // Search by phone number only - using VIEW to get creator names
+    // Search by phone number - JOIN tables directly instead of using VIEW
+    // (Hosting often has issues with VIEWs)
     $searchTerm = '%' . $query . '%';
     $stmt = $pdo->prepare("
         SELECT 
-            patient_id, 
-            phone, 
-            first_name, 
-            last_name,
-            national_id,
-            created_by_name,
-            created_by_username,
-            created_at
-        FROM patients_with_creator 
-        WHERE phone LIKE :search 
-        ORDER BY created_at DESC
+            p.patient_id, 
+            p.phone, 
+            p.first_name, 
+            p.last_name,
+            p.national_id,
+            CONCAT(u.first_name, ' ', u.last_name) as created_by_name,
+            u.username as created_by_username,
+            p.created_at
+        FROM patients p
+        LEFT JOIN users u ON p.created_by = u.user_id
+        WHERE p.phone LIKE :search 
+        ORDER BY p.created_at DESC
         LIMIT 100
     ");
     $stmt->execute(['search' => $searchTerm]);
@@ -65,9 +67,11 @@ try {
         $nationalId = $patient['national_id'];
         // Create masked version: X-XXXX-XXXXX-XX-X
         if (strlen($nationalId) >= 13) {
+            // Show first 8 digits, mask last 5 digits
+            // Format example: 1-1234-123XX-XX-X
             $patient['masked_id'] = substr($nationalId, 0, 1) . '-' . 
                                     substr($nationalId, 1, 4) . '-' . 
-                                    substr($nationalId, 5, 5) . '-XX-X';
+                                    substr($nationalId, 5, 3) . 'XX-XX-X';
         } else {
             $patient['masked_id'] = 'Invalid ID';
         }

@@ -93,14 +93,24 @@ try {
     $_SESSION['name'] = $user['first_name'] . ' ' . $user['last_name'];
     $_SESSION['login_time'] = time();
 
+    // Determine base path based on environment
+    $whitelist = array(
+        '127.0.0.1',
+        '::1',
+        'localhost'
+    );
+
+    // If on localhost, include 'frontend/' in path. If on production (root), go up to root.
+    $base_path = in_array($_SERVER['HTTP_HOST'], $whitelist) ? '../../frontend/' : '../../';
+
     // Determine redirect URL based on role
     $redirects = [
-        'doctor' => '../../frontend/html/Doctor_dashboard.html',
-        'physical_therapist' => '../../frontend/html/patient_search.html',
-        'patient' => '../../frontend/html/exercise_history.html?patient_id=' . $user['user_id']
+        'doctor' => $base_path . 'html/Doctor_dashboard.html',
+        'physical_therapist' => $base_path . 'html/patient_search.html',
+        'patient' => $base_path . 'html/exercise_history.html?patient_id=' . $user['user_id']
     ];
 
-    $redirect = $redirects[$user['role']] ?? '../../frontend/index.html';
+    $redirect = $redirects[$user['role']] ?? ($base_path . 'index.html');
 
     // Success response
     echo json_encode([

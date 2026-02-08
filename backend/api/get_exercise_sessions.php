@@ -30,24 +30,27 @@ if ($_SESSION['role'] === 'patient' && $_SESSION['user_id'] != $patientId) {
 }
 
 try {
+    // Use direct JOINs instead of VIEW (Hosting compatibility)
     $stmt = $pdo->prepare("
         SELECT 
-            session_id,
-            session_number,
-            session_date,
-            heart_rate,
-            bp_systolic,
-            bp_diastolic,
-            mets,
-            exercise_method,
-            recommendations,
-            ekg_image_path,
-            doctor_name,
-            therapist_name,
-            created_at
-        FROM exercise_sessions_with_staff
-        WHERE patient_id = :patient_id
-        ORDER BY session_number ASC
+            s.session_id,
+            s.session_number,
+            s.session_date,
+            s.heart_rate,
+            s.bp_systolic,
+            s.bp_diastolic,
+            s.mets,
+            s.exercise_method,
+            s.recommendations,
+            s.ekg_image_path,
+            CONCAT(d.first_name, ' ', d.last_name) as doctor_name,
+            CONCAT(t.first_name, ' ', t.last_name) as therapist_name,
+            s.created_at
+        FROM exercise_sessions s
+        LEFT JOIN users d ON s.doctor_id = d.user_id
+        LEFT JOIN users t ON s.therapist_id = t.user_id
+        WHERE s.patient_id = :patient_id
+        ORDER BY s.session_number ASC
     ");
     
     $stmt->execute(['patient_id' => $patientId]);
