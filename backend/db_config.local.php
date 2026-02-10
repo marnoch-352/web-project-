@@ -8,7 +8,7 @@
 
 // Database credentials - Local Development (XAMPP)
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'cardiac_rehab');
+define('DB_NAME', 'cardiacrehabdb');
 define('DB_USER', 'root');
 define('DB_PASS', ''); // Empty password for XAMPP default
 
